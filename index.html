@@ -284,14 +284,18 @@
     { label: '1 cup', ml: 250, cls: 'cup-whole'   },
   ];
 
+  // Base amounts at 1× batch
+  // vinegar: 3 tbsp = 45ml, soy: 3 tbsp = 45ml, fish: 2 tsp = 10ml
+  // lime: 2 tbsp = 30ml, oil: 3 tbsp = 45ml, sugar: 4.5 tsp (1.5 tbsp)
+  // chilli: 0.5 tsp, garlic: 2 cloves
   const ingredients = [
     { key: 'vinegar', ml: 45 },
     { key: 'soy',     ml: 45 },
-    { key: 'fish',    ml: 10 },
+    { key: 'fish',    tsp: 2 },
     { key: 'lime',    ml: 30 },
     { key: 'oil',     ml: 45 },
-    { key: 'sugar',   ml: 22 },
-    { key: 'chilli',  ml: 2.5 },
+    { key: 'sugar',   tsp: 4.5 },
+    { key: 'chilli',  tsp: 0.5 },
     { key: 'garlic',  count: 2, noun: 'clove' },
   ];
 
@@ -319,6 +323,21 @@
     return best;
   }
 
+  // 1 tsp = 5ml; flip to cups once >= 30ml (6 tsp)
+  function formatTsp(baseTsp, mult) {
+    const raw = baseTsp * mult;
+    const rawMl = raw * 5;
+    if (rawMl >= 30) {
+      const snapped = snapToCup(rawMl);
+      return { mode: 'cup', label: snapped.label, ml: snapped.ml, cls: snapped.cls };
+    }
+    const rounded = Math.max(0.5, Math.round(raw * 2) / 2);
+    const whole = Math.floor(rounded);
+    const half = rounded % 1 !== 0;
+    let label = whole === 0 ? '½ tsp' : half ? `${whole}½ tsp` : `${whole} tsp`;
+    return { mode: 'tsp', label, cls: 'cup-count' };
+  }
+
   const ALL_CLS = ['cup-eighth','cup-quarter','cup-third','cup-half','cup-whole','cup-count'];
 
   function render() {
@@ -332,11 +351,17 @@
       const cupEl = document.getElementById(`val-${ing.key}`);
       const mlEl = document.getElementById(`ml-${ing.key}`);
       row.classList.remove(...ALL_CLS);
+
       if (ing.count !== undefined) {
         const n = Math.max(1, Math.round(ing.count * mult));
         cupEl.textContent = `${n} ${ing.noun}${n !== 1 ? 's' : ''}`;
         mlEl.textContent = '';
         row.classList.add('cup-count');
+      } else if (ing.tsp !== undefined) {
+        const result = formatTsp(ing.tsp, mult);
+        cupEl.textContent = result.label;
+        mlEl.textContent = result.mode === 'cup' ? `${result.ml} ml` : '';
+        row.classList.add(result.cls);
       } else {
         const snapped = snapToCup(ing.ml * mult);
         cupEl.textContent = snapped.label;
