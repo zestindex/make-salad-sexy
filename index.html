@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dressing Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #faf8f3;
+    color: #2c2518;
+    min-height: 100vh;
+    padding: 28px 16px 60px;
+  }
+  header {
+    max-width: 440px;
+    margin: 0 auto 24px;
+    text-align: center;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c85c2a;
+    background: #f5e8df;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  h1 em { color: #c85c2a; font-style: italic; }
+
+  /* TABS */
+  .tabs {
+    max-width: 440px;
+    margin: 0 auto 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .tab-btn {
+    flex-shrink: 0;
+    border: 2px solid #e8e2d9;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: white;
+    color: #8a7f6e;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    background: #f5e8df;
+    border-color: #c85c2a;
+    color: #c85c2a;
+  }
+  .tab-btn.add-btn {
+    border-style: dashed;
+    color: #b0a898;
+  }
+
+  .card {
+    max-width: 440px;
+    margin: 0 auto 16px;
+    background: white;
+    border: 1px solid #e8e2d9;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  /* CREDIT */
+  .credit {
+    padding: 12px 24px;
+    background: #faf8f3;
+    border-bottom: 1px solid #e8e2d9;
+    font-size: 12px;
+    color: #8a7f6e;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .credit a {
+    color: #c85c2a;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .credit a:hover { text-decoration: underline; }
+
+  /* SCALER */
+  .scaler {
+    padding: 18px 24px;
+    background: #f5e8df;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .scaler-label { font-size: 13px; color: #8a7f6e; }
+  .scaler-label strong { display: block; font-size: 22px; font-family: 'Playfair Display', serif; color: #2c2518; }
+  .btn-group {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1.5px solid #c85c2a;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .btn-group button {
+    width: 44px; height: 44px;
+    border: none; background: transparent;
+    color: #c85c2a; font-size: 22px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-group button:hover { background: #f5e8df; }
+  .mult-val {
+    min-width: 52px; text-align: center;
+    font-weight: 500; font-size: 15px;
+    border-left: 1px solid #e8e2d9;
+    border-right: 1px solid #e8e2d9;
+    height: 44px; display: flex;
+    align-items: center; justify-content: center;
+  }
+
+  .ing-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    border-bottom: 1px solid #f0ece4;
+    gap: 12px;
+    transition: background 0.2s;
+  }
+  .ing-row:last-child { border-bottom: none; }
+  .ing-name { font-size: 14px; flex: 1; line-height: 1.4; }
+  .ing-name .note { font-size: 12px; color: #8a7f6e; font-weight: 300; }
+  .opt {
+    font-size: 10px;
+    background: #faf0dc; color: #b8832a;
+    border: 1px solid #e8d5a0;
+    padding: 1px 7px; border-radius: 10px;
+    font-weight: 500; white-space: nowrap;
+    margin-left: 4px;
+  }
+  .ing-amount { text-align: right; white-space: nowrap; min-width: 90px; }
+  .ing-cups {
+    font-size: 16px; font-weight: 500;
+    font-family: 'Playfair Display', serif;
+    display: block;
+  }
+  .ing-ml { font-size: 12px; color: #8a7f6e; display: block; margin-top: 1px; }
+
+  /* Cup colour coding */
+  .cup-eighth  { background: #eef6f0; }
+  .cup-quarter { background: #e8f0fb; }
+  .cup-third   { background: #f5edfb; }
+  .cup-half    { background: #fef6e4; }
+  .cup-whole   { background: #fdecea; }
+  .cup-count   { background: #ffffff; }
+  .cup-eighth  .ing-cups { color: #3a8a56; }
+  .cup-quarter .ing-cups { color: #2d6bb5; }
+  .cup-third   .ing-cups { color: #7c3aab; }
+  .cup-half    .ing-cups { color: #b87a0a; }
+  .cup-whole   .ing-cups { color: #c0362a; }
+  .cup-count   .ing-cups { color: #2c2518; }
+
+  /* Legend */
+  .legend {
+    max-width: 440px;
+    margin: 0 auto 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 2px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #8a7f6e;
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Dressing Calculator</div>
+  <h1>Asian Slaw <em>Dressing</em></h1>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active">🥗 Asian Slaw</button>
+  <button class="tab-btn add-btn">+ Add dressing</button>
+</div>
+
+<!-- MAIN CARD -->
+<div class="card">
+  <!-- Credit -->
+  <div class="credit">
+    📝 Recipe by <a href="https://www.recipetineats.com/asian-slaw/" target="_blank">Nagi Maehashi · RecipeTin Eats</a>
+  </div>
+
+  <!-- Scaler -->
+  <div class="scaler">
+    <div>
+      <div class="scaler-label">Batches</div>
+      <div class="scaler-label"><strong id="mult-display">1×</strong></div>
+      <div class="scaler-label" id="salad-note">dresses ~8 portions</div>
+    </div>
+    <div class="btn-group">
+      <button onclick="change(-1)">−</button>
+      <div class="mult-val" id="step-display">1</div>
+      <button onclick="change(1)">+</button>
+    </div>
+  </div>
+
+  <!-- Ingredients -->
+  <div id="ing-card">
+    <div class="ing-row" id="row-vinegar">
+      <div class="ing-name">Rice vinegar<div class="note">or cider / white wine vinegar</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-vinegar"></span><span class="ing-ml" id="ml-vinegar"></span></div>
+    </div>
+    <div class="ing-row" id="row-soy">
+      <div class="ing-name">Soy sauce<div class="note">light or all-purpose, not dark</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-soy"></span><span class="ing-ml" id="ml-soy"></span></div>
+    </div>
+    <div class="ing-row" id="row-fish">
+      <div class="ing-name">Fish sauce <span class="opt">optional</span><div class="note">or sub with extra soy</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-fish"></span><span class="ing-ml" id="ml-fish"></span></div>
+    </div>
+    <div class="ing-row" id="row-lime">
+      <div class="ing-name">Lime juice <span class="opt">optional</span><div class="note">or sub with more rice vinegar</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-lime"></span><span class="ing-ml" id="ml-lime"></span></div>
+    </div>
+    <div class="ing-row" id="row-oil">
+      <div class="ing-name">Peanut oil<div class="note">or any neutral oil</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-oil"></span><span class="ing-ml" id="ml-oil"></span></div>
+    </div>
+    <div class="ing-row" id="row-sugar">
+      <div class="ing-name">Sugar<div class="note">any type</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-sugar"></span><span class="ing-ml" id="ml-sugar"></span></div>
+    </div>
+    <div class="ing-row" id="row-chilli">
+      <div class="ing-name">Red chilli <span class="opt">optional</span><div class="note">bird's eye, finely minced</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-chilli"></span><span class="ing-ml" id="ml-chilli"></span></div>
+    </div>
+    <div class="ing-row" id="row-garlic">
+      <div class="ing-name">Garlic cloves<div class="note">minced</div></div>
+      <div class="ing-amount"><span class="ing-cups" id="val-garlic"></span><span class="ing-ml" id="ml-garlic"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#c5e5d0"></div>⅛ cup / 30ml</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#b8d0f0"></div>¼ cup / 60ml</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#dfc5f5"></div>⅓ cup / 80ml</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f5e0a0"></div>½ cup / 125ml</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f5b8b0"></div>1 cup / 250ml</div>
+</div>
+
+<script>
+  const CUPS = [
+    { label: '⅛ cup', ml: 30,  cls: 'cup-eighth'  },
+    { label: '¼ cup', ml: 60,  cls: 'cup-quarter' },
+    { label: '⅓ cup', ml: 80,  cls: 'cup-third'   },
+    { label: '½ cup', ml: 125, cls: 'cup-half'    },
+    { label: '1 cup', ml: 250, cls: 'cup-whole'   },
+  ];
+
+  const ingredients = [
+    { key: 'vinegar', ml: 45 },
+    { key: 'soy',     ml: 45 },
+    { key: 'fish',    ml: 10 },
+    { key: 'lime',    ml: 30 },
+    { key: 'oil',     ml: 45 },
+    { key: 'sugar',   ml: 22 },
+    { key: 'chilli',  ml: 2.5 },
+    { key: 'garlic',  count: 2, noun: 'clove' },
+  ];
+
+  const STEPS = [0.5, 1, 2, 3, 4, 5, 6, 8, 10, 12];
+  let idx = 1;
+
+  function snapToCup(targetMl) {
+    let best = null, bestDiff = Infinity;
+    const maxWholes = Math.ceil(targetMl / 250) + 1;
+    for (let w = 0; w <= maxWholes; w++) {
+      const wholeMl = w * 250;
+      if (w > 0 && Math.abs(wholeMl - targetMl) < bestDiff) {
+        bestDiff = Math.abs(wholeMl - targetMl);
+        best = { label: w === 1 ? '1 cup' : `${w} cups`, ml: wholeMl, cls: 'cup-whole' };
+      }
+      for (const cup of CUPS) {
+        const totalMl = w * 250 + cup.ml;
+        const diff = Math.abs(totalMl - targetMl);
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          best = { label: w === 0 ? cup.label : `${w} + ${cup.label}`, ml: totalMl, cls: cup.cls };
+        }
+      }
+    }
+    return best;
+  }
+
+  const ALL_CLS = ['cup-eighth','cup-quarter','cup-third','cup-half','cup-whole','cup-count'];
+
+  function render() {
+    const mult = STEPS[idx];
+    document.getElementById('mult-display').textContent = `${mult}×`;
+    document.getElementById('step-display').textContent = mult;
+    document.getElementById('salad-note').textContent = `dresses ~${Math.round(8 * mult)} portions`;
+
+    ingredients.forEach(ing => {
+      const row = document.getElementById(`row-${ing.key}`);
+      const cupEl = document.getElementById(`val-${ing.key}`);
+      const mlEl = document.getElementById(`ml-${ing.key}`);
+      row.classList.remove(...ALL_CLS);
+      if (ing.count !== undefined) {
+        const n = Math.max(1, Math.round(ing.count * mult));
+        cupEl.textContent = `${n} ${ing.noun}${n !== 1 ? 's' : ''}`;
+        mlEl.textContent = '';
+        row.classList.add('cup-count');
+      } else {
+        const snapped = snapToCup(ing.ml * mult);
+        cupEl.textContent = snapped.label;
+        mlEl.textContent = `${snapped.ml} ml`;
+        row.classList.add(snapped.cls);
+      }
+    });
+  }
+
+  function change(dir) {
+    idx = Math.max(0, Math.min(STEPS.length - 1, idx + dir));
+    render();
+  }
+
+  render();
+</script>
+</body>
+</html>
